@@ -1,15 +1,37 @@
-# 11. 수업 프로젝트 운영
 
-이 프로젝트는 코드 복사보다 ‘검사 가능한 작은 성공’을 중심으로 운영합니다. 모둠별로 데이터 담당, 모델 담당, 평가 담당, 웹 담당을 나눌 수 있지만 모든 학생이 전체 흐름을 설명해야 합니다.
+여러 장을 한꺼번에 변환하여 별도 폴더에 저장할 수 있습니다. 원본을 보존하고 출력 폴더를 따로 사용합니다.
 
-수업 산출물은 다음과 같습니다.
+```python
+from PIL import Image, ImageOps
+from pathlib import Path
 
-- 데이터 카드: 출처, 라이선스, 클래스 수, 편향
-- 전처리 보고서: 입력 형태와 증강 근거
-- 모델 카드: 구조, 성능, 한계, 사용 주의
-- 오류 일지: 오류 메시지, 원인, 해결, 확인
-- 웹앱과 배포 주소
-- 개인 성찰: 내가 개선한 한 가지와 남은 한계
+def convert_to_180(source, target):
+    target.mkdir(parents=True, exist_ok=True)
 
-교사는 정확도 경쟁보다 재현 가능한 과정, 데이터 윤리, 오류 분석, 협업 기록을 평가합니다. 학습 데이터가 다른 팀끼리 단순 정확도만 비교하면 공정하지 않습니다.
+    for path in source.iterdir():
+        if path.suffix.lower() not in {".jpg", ".jpeg", ".png"}:
+            continue
+
+        with Image.open(path) as image:
+            image = image.convert("RGB")
+            image = ImageOps.fit(
+                image,
+                (180, 180),
+                method=Image.Resampling.LANCZOS
+            )
+            image.save(target / f"{path.stem}.jpg", quality=92)
+```
+
+`ImageOps.fit`은 비율을 찌그러뜨리지 않고 중앙을 잘라 정사각형으로 만듭니다. 단순 `resize((180,180))`는 긴 사진을 눌러 물체 모양을 왜곡할 수 있습니다.
+
+학습 로더가 자동 리사이즈한다면 모든 원본을 미리 저장 변환할 필요는 없습니다. 다만 휴대폰 앱과 같은 전처리를 확인하기 위한 별도 실습으로 유용합니다.
+
+### 검사
+
+```python
+with Image.open(sample_path) as image:
+    print(image.size, image.mode)
+```
+
+정상 출력은 `(180, 180) RGB`입니다.
 

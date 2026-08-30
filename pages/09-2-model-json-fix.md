@@ -1,27 +1,28 @@
-# 06-4. 낮은 신뢰도 개선
 
-확률을 억지로 높이는 것이 목표가 아닙니다. 정답 사진에서 올바른 클래스 확률이 높아지고, 틀린 사진에서는 불확실성을 정직하게 표현하는 모델이 목표입니다.
+Keras 3.15.1이 만든 입력 속성을 TensorFlow.js 4.22가 이해하지 못하여 다음 오류가 발생했습니다.
 
-개선 우선순위는 다음과 같습니다.
-
-1. 실제 휴대폰 환경의 새 사진을 클래스마다 수집합니다.
-2. 틀린 사진을 오류 유형별로 정리합니다.
-3. 클래스 수와 다양성을 균형 있게 보완합니다.
-4. 과도하지 않은 밝기·회전·확대 증강을 사용합니다.
-5. MobileNetV2 같은 사전학습 모델의 전이학습을 비교합니다.
-6. 최고 확률과 1·2위 차이를 함께 판단합니다.
-
-판단 보류 규칙 예시입니다.
-
-```python
-best = sorted_probs[0]
-second = sorted_probs[1]
-
-if best < 0.60 or best - second < 0.15:
-    decision = "판단 보류"
-else:
-    decision = class_name
+```text
+An InputLayer should be passed either a batchInputShape or an inputShape
 ```
 
-수집한 현실 사진을 다시 학습에 사용할 때는 일부를 새로운 테스트 집합으로 남깁니다. 모든 현실 사진을 학습에 넣으면 개선 효과를 객관적으로 평가할 자료가 사라집니다.
+`model.json`의 속성 이름을 변경했습니다.
+
+```text
+batch_shape → batch_input_shape
+```
+
+다음 오류는 가중치 이름 앞의 모델 접두사가 원인이었습니다.
+
+```text
+Provided weight data has no target variable:
+garbage_10class_web_model/conv2d/kernel
+```
+
+`model.json`의 가중치 이름에서 다음 접두사를 일괄 제거했습니다.
+
+```text
+garbage_10class_web_model/
+```
+
+변경 전 `garbage_10class_web_model/conv2d/kernel`, 변경 후 `conv2d/kernel`입니다. `.bin` 숫자는 변경하지 않았습니다. 수정 후 Network의 캐시를 끄고 강력 새로고침하여 모델 준비 완료를 확인했습니다.
 

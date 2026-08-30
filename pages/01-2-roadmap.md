@@ -1,33 +1,54 @@
-# 03-4. 손상·중복·오분류 이미지 점검
 
-확장자가 `.jpg`라도 실제 이미지가 아닐 수 있습니다. Pillow로 파일을 열어 검증합니다.
+## 성공한 작업 흐름
 
-```python
-from PIL import Image
-
-def is_valid_image(path):
-    try:
-        with Image.open(path) as image:
-            image.verify()
-        return True
-    except Exception:
-        return False
+```text
+Kaggle 계정과 데이터 확인
+→ 두 데이터셋 다운로드
+→ 공통 6개 클래스 결합
+→ 추가 4개 클래스 정리
+→ 10개 폴더 완성
+→ 손상 이미지 제거
+→ 180×180 전처리
+→ 학습·검증·테스트 분리
+→ 클래스 가중치 계산
+→ 4블록 CNN 학습
+→ 테스트 정확도와 혼동행렬 확인
+→ 휴대폰 사진 예측
+→ .keras 모델 저장
+→ Python 3.11 독립 변환 환경
+→ 웹 추론용 CNN 재구성
+→ 원본 가중치 복사
+→ 두 모델의 예측 일치 검사
+→ model.json과 bin 생성
+→ React·Vite 웹앱 구현
+→ GitHub Push
+→ GitHub Actions Pages 배포
 ```
 
-손상 파일은 즉시 영구 삭제하기보다 검토 폴더로 이동하여 기록을 남깁니다.
+## 왜 단계별로 검사하는가
 
-```python
-REVIEW_DIR = Path("/content/to_review")
-REVIEW_DIR.mkdir(parents=True, exist_ok=True)
+프로그램이 마지막에만 오류를 보여 주면 원인을 찾기 어렵습니다. 반대로 단계마다 검사하면 오류 범위를 줄일 수 있습니다.
 
-for class_name in CLASS_NAMES:
-    for path in (MERGED_DIR / class_name).iterdir():
-        if not is_valid_image(path):
-            target = REVIEW_DIR / f"{class_name}_{path.name}"
-            shutil.move(path, target)
+| 단계 | 검사 질문 |
+|---|---|
+| 데이터 | 10개 폴더에 이미지가 있는가? |
+| 전처리 | 한 배치의 형태가 `(배치,180,180,3)`인가? |
+| 학습 | 손실이 감소하고 검증 정확도가 개선되는가? |
+| 평가 | 특정 클래스만 지나치게 자주 예측하지 않는가? |
+| 변환 | 원본과 웹용 모델 예측 차이가 거의 0인가? |
+| 웹앱 | 모델과 `.bin`이 200 상태로 로드되는가? |
+| 배포 | Actions의 모든 단계가 초록색인가? |
+
+## 개발 일지 작성법
+
+학생은 매 차시 다음 네 줄을 기록합니다.
+
+```text
+오늘의 목표:
+성공한 검사:
+발생한 오류와 원인:
+다음 시간 첫 작업:
 ```
 
-`NameError: REVIEW_DIR is not defined`는 변수를 만들기 전에 사용했기 때문입니다. 코드 셀을 일부만 실행하면 이런 문제가 생깁니다. 경로 설정 → 폴더 생성 → 함수 정의 → 함수 호출 순서를 지킵니다.
-
-중복 검사는 파일 내용의 해시값을 이용할 수 있습니다. 같은 사진이 학습과 테스트에 동시에 존재하면 모델이 암기한 사진을 맞혀 성능이 실제보다 높아집니다. 또한 클래스마다 무작위 표본을 30장 이상 눈으로 확인하여 잘못 분류된 사진, 여러 물체가 함께 있는 사진, 워터마크가 큰 사진을 검토합니다.
+‘코드가 안 됨’이 아니라 실제 오류 마지막 줄을 기록합니다. 예를 들어 `NameError: REVIEW_DIR is not defined`라면 변수를 만들기 전에 사용했다는 뜻입니다. 오류 메시지를 읽는 능력도 프로젝트의 중요한 학습 결과입니다.
 

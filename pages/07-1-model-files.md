@@ -1,25 +1,22 @@
-# 10-1. Git 저장소와 Push
 
-프로젝트 루트에서 빌드 후 Git에 기록합니다.
-
-```powershell
-npm run build
-git status
-git add .
-git commit -m "쓰레기 CNN 분류 React 웹앱 구현"
-git branch -M main
-git remote add origin https://github.com/사용자이름/garbage-classifier-web.git
-git push -u origin main
+```text
+tensorflowjs_model/
+├── model.json
+├── group1-shard1of1.bin
+├── labels.json
+└── labels.txt
 ```
 
-`node_modules`와 `dist`는 `.gitignore`로 제외합니다. `package.json`과 `package-lock.json`을 올리면 Actions가 동일 패키지를 설치할 수 있습니다.
+`model.json`에는 층 구조, 활성화 함수, 입력 형태, 가중치 파일 이름이 있습니다. `.bin`에는 학습된 실수 가중치가 이진 형식으로 저장됩니다. 모델이 크면 여러 shard 파일로 나뉠 수 있으며 모두 함께 배포해야 합니다.
 
-원격에 README 같은 커밋이 이미 있어 Push가 거부되면 강제 Push부터 하지 않습니다. 원격 내용을 `fetch`하고 병합하거나, 프로젝트 루트가 맞는지 먼저 확인합니다.
+`labels.json`은 모델 자체가 만든 파일이 아니라 앱이 출력 번호와 이름을 연결하기 위한 파일입니다.
 
-```powershell
-git rev-parse --show-toplevel
-git remote -v
+```json
+[
+  {"index": 0, "english": "battery", "korean": "배터리"},
+  {"index": 1, "english": "cardboard", "korean": "카드보드"}
+]
 ```
 
-앞으로 수정 후에는 `add → commit → push` 세 단계로 자동 재배포됩니다.
+파일을 수정할 때 `.bin` 이름을 바꾸면 `model.json`의 `weightsManifest`와 불일치합니다. 네 파일을 같은 `public/model` 폴더에 둡니다.
 

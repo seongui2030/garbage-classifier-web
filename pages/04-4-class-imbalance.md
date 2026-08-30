@@ -1,16 +1,34 @@
-# 04. 이미지 전처리
 
-전처리는 서로 다른 크기와 방향의 사진을 모델이 받을 수 있는 일정한 숫자 형태로 바꾸는 과정입니다. 이 프로젝트의 입력 약속은 `180×180`, RGB 3채널, 배치 형태입니다.
+클래스별 이미지 수가 달라도 학습은 가능하지만, 차이가 크면 많은 클래스 쪽으로 예측이 치우칠 수 있습니다. 이 데이터는 최대와 최소 클래스 수 차이가 약 3.93배였습니다.
 
-전처리는 학습과 서비스에서 같아야 합니다. 학습은 `0~255`를 받은 뒤 모델 내부에서 `1/255`로 정규화합니다. 웹앱도 같은 방식으로 `0~255` 텐서를 전달해야 합니다. 한쪽에서만 중앙 자르기를 사용하거나 정규화를 두 번 하면 예측이 달라질 수 있습니다.
+클래스 가중치는 적은 클래스의 오답에 더 큰 손실을 부여합니다.
 
-```text
-이미지 읽기
-→ RGB 변환
-→ 크기 통일
-→ 배치 구성
-→ 모델 내부 정규화
+```python
+from sklearn.utils.class_weight import compute_class_weight
+import numpy as np
+
+weights = compute_class_weight(
+    class_weight="balanced",
+    classes=np.unique(train_labels),
+    y=train_labels
+)
+
+class_weight = {
+    int(index): float(weight)
+    for index, weight in enumerate(weights)
+}
 ```
 
-전처리는 화려한 기법보다 ‘일관성’이 중요합니다. 데이터 폴더의 이미지 수, 배치 형태, 클래스 순서, 픽셀 범위를 출력하여 확인합니다.
+학습에 전달합니다.
+
+```python
+model.fit(
+    train_ds,
+    validation_data=val_ds,
+    epochs=30,
+    class_weight=class_weight
+)
+```
+
+가중치가 모든 문제를 해결하지는 않습니다. 적은 클래스의 이미지 다양성이 부족하면 같은 사진을 단순 복제하는 것보다 다양한 배경, 각도, 조명으로 새 사진을 추가하는 편이 좋습니다. 평가도 전체 정확도 하나가 아니라 클래스별 정밀도와 재현율을 확인합니다.
 

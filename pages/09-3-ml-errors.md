@@ -1,33 +1,13 @@
-# 06-3. 휴대폰 사진 한 장 분류
 
-Colab에서 휴대폰 사진을 업로드하고 동일한 전처리로 예측합니다.
+코드가 정상 실행되어도 모델 결과가 나쁠 수 있습니다. 이것은 프로그램 오류와 다른 ‘모델 오류’입니다.
 
-```python
-from google.colab import files
-from tensorflow.keras.utils import load_img, img_to_array
-import numpy as np
+| 현상 | 가능한 원인 | 확인 방법 |
+|---|---|---|
+| 한 클래스만 자주 예측 | 클래스 불균형 | 예측 분포와 표본 수 비교 |
+| 학습 정확도만 높음 | 과적합 | 학습·검증 곡선 비교 |
+| 휴대폰 사진만 낮음 | 도메인 차이 | 현실 사진 별도 테스트 |
+| 두 클래스 확률이 비슷 | 특징 중첩 | 혼동 이미지 관찰 |
+| 엉뚱한 이름 출력 | 라벨 순서 불일치 | 0~9 순서 점검 |
 
-uploaded = files.upload()
-image_path = next(iter(uploaded))
-
-image = load_img(image_path, target_size=(180, 180))
-array = img_to_array(image)
-batch = np.expand_dims(array, axis=0)
-
-probabilities = model.predict(batch, verbose=0)[0]
-order = np.argsort(probabilities)[::-1]
-
-for rank, index in enumerate(order, start=1):
-    print(rank, CLASS_NAMES[index], f"{probabilities[index]*100:.2f}%")
-```
-
-실제 사례에서 의류 39.77%, 금속 34.63%, 종이 20.02%가 나왔습니다. 1위만 보면 의류지만 2위와 차이가 작고 최고 확률도 낮습니다. 이것은 모델이 사진을 잘 이해했다고 보기 어렵습니다.
-
-```python
-best = probabilities[order[0]] * 100
-if best < 60:
-    print("신뢰도가 낮습니다. 밝은 곳에서 물체 하나만 다시 촬영하세요.")
-```
-
-실제 사진은 모델을 칭찬하기 위한 시험이 아니라 학습 데이터의 빈틈을 찾는 자료입니다.
+낮은 확률을 Softmax 온도 조정으로 겉보기에 높이는 것은 정확도 개선이 아닙니다. 먼저 현실 데이터와 전처리 일치를 개선합니다. 모델의 불확실성을 화면에 표시하는 것도 중요한 설계입니다.
 

@@ -1,29 +1,31 @@
-# 09-2. Keras 3과 TensorFlow.js 호환 수정
 
-Keras 3.15.1이 만든 입력 속성을 TensorFlow.js 4.22가 이해하지 못하여 다음 오류가 발생했습니다.
+```python
+from pathlib import Path
+import tensorflowjs as tfjs
 
-```text
-An InputLayer should be passed either a batchInputShape or an inputShape
+OUTPUT = Path("/content/tfjs_model")
+tfjs.converters.save_keras_model(clean, str(OUTPUT))
+
+assert (OUTPUT / "model.json").exists()
+bin_files = list(OUTPUT.glob("*.bin"))
+assert bin_files
 ```
 
-`model.json`의 속성 이름을 변경했습니다.
+JSON을 열어 `weightsManifest`를 확인합니다.
 
-```text
-batch_shape → batch_input_shape
+```python
+import json
+
+data = json.loads((OUTPUT / "model.json").read_text(encoding="utf-8"))
+assert "weightsManifest" in data
 ```
 
-다음 오류는 가중치 이름 앞의 모델 접두사가 원인이었습니다.
+결과는 `model.json` 약 0.008MB, `.bin` 약 1.61MB였습니다. 라벨 파일을 UTF-8로 저장하고 ZIP으로 묶어 Drive에 보관했습니다.
 
-```text
-Provided weight data has no target variable:
-garbage_10class_web_model/conv2d/kernel
+```python
+import shutil
+shutil.make_archive("/content/tensorflowjs_model", "zip", OUTPUT)
 ```
 
-`model.json`의 가중치 이름에서 다음 접두사를 일괄 제거했습니다.
-
-```text
-garbage_10class_web_model/
-```
-
-변경 전 `garbage_10class_web_model/conv2d/kernel`, 변경 후 `conv2d/kernel`입니다. `.bin` 숫자는 변경하지 않았습니다. 수정 후 Network의 캐시를 끄고 강력 새로고침하여 모델 준비 완료를 확인했습니다.
+변환 성공 기준은 파일 생성만이 아닙니다. 원본과 추론 모델 예측 일치, JSON 문법, manifest, 모든 bin 존재, 라벨 열 개 순서를 함께 확인합니다.
 

@@ -1,32 +1,12 @@
-# 07-4. model.json과 bin 생성·검사
 
-```python
-from pathlib import Path
-import tensorflowjs as tfjs
+React는 화면을 상태에 따라 다시 그리는 도구이고, Vite는 프로젝트 생성·개발 서버·배포 빌드를 담당합니다. 학생은 처음부터 모든 개념을 외우지 않고 다음 상태 변화에 집중합니다.
 
-OUTPUT = Path("/content/tfjs_model")
-tfjs.converters.save_keras_model(clean, str(OUTPUT))
-
-assert (OUTPUT / "model.json").exists()
-bin_files = list(OUTPUT.glob("*.bin"))
-assert bin_files
+```text
+모델 로딩 중 → 모델 준비 완료
+사진 없음 → 사진 미리보기
+예측 전 → 예측 중 → 결과 표시
+정상 → 오류 안내
 ```
 
-JSON을 열어 `weightsManifest`를 확인합니다.
-
-```python
-import json
-
-data = json.loads((OUTPUT / "model.json").read_text(encoding="utf-8"))
-assert "weightsManifest" in data
-```
-
-결과는 `model.json` 약 0.008MB, `.bin` 약 1.61MB였습니다. 라벨 파일을 UTF-8로 저장하고 ZIP으로 묶어 Drive에 보관했습니다.
-
-```python
-import shutil
-shutil.make_archive("/content/tensorflowjs_model", "zip", OUTPUT)
-```
-
-변환 성공 기준은 파일 생성만이 아닙니다. 원본과 추론 모델 예측 일치, JSON 문법, manifest, 모든 bin 존재, 라벨 열 개 순서를 함께 확인합니다.
+이번 장에서는 먼저 `App.jsx` 하나에 전체 기능을 넣습니다. 기능이 성공한 뒤 모델 로딩, 이미지 전처리, 결과 UI를 파일로 나누는 것이 모듈화입니다. 처음부터 지나치게 나누면 데이터가 어느 파일로 이동하는지 이해하기 어렵습니다.
 

@@ -1,55 +1,30 @@
-# 01-2. 전체 개발 과정
 
-## 성공한 작업 흐름
+```jsx
+import * as tf from "@tensorflow/tfjs";
 
-```text
-Kaggle 계정과 데이터 확인
-→ 두 데이터셋 다운로드
-→ 공통 6개 클래스 결합
-→ 추가 4개 클래스 정리
-→ 10개 폴더 완성
-→ 손상 이미지 제거
-→ 180×180 전처리
-→ 학습·검증·테스트 분리
-→ 클래스 가중치 계산
-→ 4블록 CNN 학습
-→ 테스트 정확도와 혼동행렬 확인
-→ 휴대폰 사진 예측
-→ .keras 모델 저장
-→ Python 3.11 독립 변환 환경
-→ 웹 추론용 CNN 재구성
-→ 원본 가중치 복사
-→ 두 모델의 예측 일치 검사
-→ model.json과 bin 생성
-→ React·Vite 웹앱 구현
-→ GitHub Push
-→ GitHub Actions Pages 배포
+async function loadModel() {
+  await tf.ready();
+
+  const modelUrl =
+    `${import.meta.env.BASE_URL}model/model.json`;
+  const labelsUrl =
+    `${import.meta.env.BASE_URL}model/labels.json`;
+
+  const [model, response] = await Promise.all([
+    tf.loadLayersModel(modelUrl),
+    fetch(labelsUrl),
+  ]);
+
+  if (!response.ok) {
+    throw new Error("labels.json 불러오기 실패");
+  }
+
+  const labels = await response.json();
+  return { model, labels };
+}
 ```
 
-## 왜 단계별로 검사하는가
+`await`는 비동기 작업이 끝날 때까지 함수의 다음 줄을 기다립니다. 모델과 라벨을 동시에 요청하여 시간을 줄입니다. `BASE_URL`은 로컬의 `/`와 GitHub Pages의 `/garbage-classifier-web/`을 자동으로 맞춥니다.
 
-프로그램이 마지막에만 오류를 보여 주면 원인을 찾기 어렵습니다. 반대로 단계마다 검사하면 오류 범위를 줄일 수 있습니다.
-
-| 단계 | 검사 질문 |
-|---|---|
-| 데이터 | 10개 폴더에 이미지가 있는가? |
-| 전처리 | 한 배치의 형태가 `(배치,180,180,3)`인가? |
-| 학습 | 손실이 감소하고 검증 정확도가 개선되는가? |
-| 평가 | 특정 클래스만 지나치게 자주 예측하지 않는가? |
-| 변환 | 원본과 웹용 모델 예측 차이가 거의 0인가? |
-| 웹앱 | 모델과 `.bin`이 200 상태로 로드되는가? |
-| 배포 | Actions의 모든 단계가 초록색인가? |
-
-## 개발 일지 작성법
-
-학생은 매 차시 다음 네 줄을 기록합니다.
-
-```text
-오늘의 목표:
-성공한 검사:
-발생한 오류와 원인:
-다음 시간 첫 작업:
-```
-
-‘코드가 안 됨’이 아니라 실제 오류 마지막 줄을 기록합니다. 예를 들어 `NameError: REVIEW_DIR is not defined`라면 변수를 만들기 전에 사용했다는 뜻입니다. 오류 메시지를 읽는 능력도 프로젝트의 중요한 학습 결과입니다.
+빈 입력으로 한 번 예열하면 첫 실제 예측 지연을 줄일 수 있습니다. 사용이 끝난 텐서는 `dispose()`하여 휴대폰 메모리를 정리합니다.
 

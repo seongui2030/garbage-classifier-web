@@ -1,28 +1,18 @@
-# 09-1. 포트와 패키지 오류
 
-## 포트 변경
+저장소에서 `Settings → Pages → Source → GitHub Actions`를 선택합니다. `Deploy from a branch`나 제안된 Jekyll/Static HTML 워크플로를 선택하지 않습니다. 이미 Vite용 `deploy.yml`이 있기 때문입니다.
 
-```text
-Port 5173 is in use, trying another one...
-Local: http://localhost:5174/
-```
-
-오류가 아니라 다른 서버가 5173을 사용하여 5174로 바뀐 것입니다. 항상 터미널의 주소를 사용합니다.
-
-## TensorFlow.js 미설치
+활성화 전 첫 Actions는 다음 오류로 실패했습니다.
 
 ```text
-Failed to resolve import "@tensorflow/tfjs"
+Get Pages site failed
+Please verify that the repository has Pages enabled
 ```
 
-```powershell
-npm install @tensorflow/tfjs
-npm list @tensorflow/tfjs
+Source를 GitHub Actions로 바꾼 뒤 `Actions → 실패 작업 → Re-run jobs`로 다시 실행합니다. 모든 단계가 초록색이면 성공입니다.
+
+```text
+https://seongui2030.github.io/garbage-classifier-web/
 ```
 
-설치 성공 결과는 `@tensorflow/tfjs@4.22.0`이었습니다.
-
-## JSON 대신 기본 Vite 화면
-
-`/model/model.json`을 입력했는데 기본 화면이 나오면 다른 포트의 Vite 서버에 접속했거나 `public/model` 구조가 틀렸을 수 있습니다. `dir public\model`과 브라우저 Network 탭으로 확인합니다.
+배포 후 휴대폰에서 모델 준비, 사진 촬영, 열 개 확률을 검사합니다. GitHub Pages는 HTTPS이므로 카메라 입력 테스트에 적합합니다. 배포 직후 몇 분 동안 이전 캐시가 보이면 강력 새로고침합니다.
 

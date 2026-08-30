@@ -1,18 +1,27 @@
-# 10. Git과 GitHub Pages 배포
 
-Git은 파일 변화의 기록이고 GitHub는 그 기록을 공유하는 원격 저장소입니다. GitHub Pages는 정적 파일을 HTTPS 웹사이트로 제공합니다. Vite 프로젝트는 소스 파일을 그대로 게시하지 않고 `npm run build`로 `dist`를 만든 뒤 배포합니다.
+## 포트 변경
 
 ```text
-VSCode 수정
-→ git add
-→ git commit
-→ git push
-→ GitHub Actions
-→ npm ci
-→ npm run build
-→ dist 업로드
-→ GitHub Pages
+Port 5173 is in use, trying another one...
+Local: http://localhost:5174/
 ```
 
-웹앱은 서버에 비밀 키가 필요하지 않고 브라우저에서 모델을 실행하므로 정적 Pages에 적합합니다. 모델 파일도 사용자 기기로 내려가므로 교육용 공개 모델이라는 점을 이해합니다.
+오류가 아니라 다른 서버가 5173을 사용하여 5174로 바뀐 것입니다. 항상 터미널의 주소를 사용합니다.
+
+## TensorFlow.js 미설치
+
+```text
+Failed to resolve import "@tensorflow/tfjs"
+```
+
+```powershell
+npm install @tensorflow/tfjs
+npm list @tensorflow/tfjs
+```
+
+설치 성공 결과는 `@tensorflow/tfjs@4.22.0`이었습니다.
+
+## JSON 대신 기본 Vite 화면
+
+`/model/model.json`을 입력했는데 기본 화면이 나오면 다른 포트의 Vite 서버에 접속했거나 `public/model` 구조가 틀렸을 수 있습니다. `dir public\model`과 브라우저 Network 탭으로 확인합니다.
 

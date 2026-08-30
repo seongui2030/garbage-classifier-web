@@ -1,33 +1,35 @@
-# 03-2. 두 데이터셋 합치기
 
-병합은 ‘폴더를 한곳에 복사’하는 것보다 신중해야 합니다. 같은 파일명이 존재하면 덮어쓸 수 있으므로 출처 접두사와 연속 번호를 붙입니다.
-
-```python
-from pathlib import Path
-import shutil
-
-def copy_images(source_dir, target_dir, prefix):
-    target_dir.mkdir(parents=True, exist_ok=True)
-    count = 0
-
-    for path in sorted(source_dir.iterdir()):
-        if path.suffix.lower() not in {".jpg", ".jpeg", ".png", ".webp"}:
-            continue
-
-        count += 1
-        new_name = f"{prefix}_{count:06d}{path.suffix.lower()}"
-        shutil.copy2(path, target_dir / new_name)
-
-    return count
-```
-
-`prefix`가 `data1_metal`, `data2_metal`이라면 파일 이름만 보고 출처를 알 수 있습니다. `:06d`는 번호를 여섯 자리로 맞춥니다.
+컬러 사진의 한 픽셀은 빨강(R), 초록(G), 파랑(B) 세 숫자로 표현됩니다. 각 값은 보통 0부터 255입니다. 검정은 `[0,0,0]`, 흰색은 `[255,255,255]`입니다.
 
 ```python
-metal_count1 = copy_images(src1 / "metal", merged / "metal", "data1_metal")
-metal_count2 = copy_images(src2 / "metal", merged / "metal", "data2_metal")
-print(metal_count1, metal_count2)
+pixel = [120, 200, 35]
+red, green, blue = pixel
+print(green)  # 200
 ```
 
-복사 후에는 원본 수와 대상 증가량이 맞는지 확인합니다. 성공 메시지를 무조건 출력하지 말고 실제 반환값과 파일 수를 비교합니다.
+`180×180` RGB 사진 한 장의 형태는 `(180,180,3)`입니다. 모델은 여러 장을 한꺼번에 처리하므로 맨 앞에 배치 차원을 붙입니다.
+
+```text
+사진 한 장: (180, 180, 3)
+32장 배치: (32, 180, 180, 3)
+한 장 예측: (1, 180, 180, 3)
+```
+
+NumPy 배열로 생각하면 파이썬의 중첩 리스트와 비슷합니다. 그러나 실제 값의 수는 `180×180×3=97,200`개이므로 일반 리스트보다 배열 연산이 효율적입니다.
+
+```python
+import numpy as np
+
+image = np.zeros((180, 180, 3), dtype=np.uint8)
+print(image.shape)
+print(image.dtype)
+```
+
+`shape`는 배열의 구조이고, `dtype`은 각 숫자의 자료형입니다. 학습 때는 보통 `float32`로 바꿉니다. 이 모델은 내부의 `Rescaling(1/255)` 층이 `0~255`를 `0~1`로 변환합니다.
+
+### 확인문제
+
+1. 흑백 이미지의 마지막 채널 수는 보통 몇 개인가요?
+2. 사진 16장의 배치 형태를 적어 보세요.
+3. React에서 다시 `255`로 나누면 안 되는 이유를 말해 보세요.
 

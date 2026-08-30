@@ -1,28 +1,43 @@
-# 06-2. 혼동행렬과 클래스별 성능
 
-혼동행렬은 실제 클래스와 예측 클래스의 조합을 표로 나타냅니다.
+정답이 클래스 번호 하나이므로 `SparseCategoricalCrossentropy`를 사용합니다.
 
 ```python
-import numpy as np
-from sklearn.metrics import confusion_matrix, classification_report
-
-y_true = []
-y_pred = []
-
-for images, labels in test_ds:
-    probs = model.predict(images, verbose=0)
-    y_true.extend(labels.numpy())
-    y_pred.extend(np.argmax(probs, axis=1))
-
-cm = confusion_matrix(y_true, y_pred)
-print(classification_report(y_true, y_pred, target_names=CLASS_NAMES))
+model.compile(
+    optimizer=tf.keras.optimizers.Adam(learning_rate=0.001),
+    loss=tf.keras.losses.SparseCategoricalCrossentropy(),
+    metrics=["accuracy"]
+)
 ```
 
-대각선은 정답, 대각선 밖은 혼동입니다. 종이를 카드보드로 자주 예측한다면 두 클래스의 두께, 접힘, 표면 질감을 더 다양하게 학습해야 합니다. 의류와 금속 혼동이 발생했다면 실제 사진을 보고 반사광, 배경, 물체 형태 등 가능한 원인을 기록합니다.
+과적합을 줄이고 가장 좋은 시점을 저장합니다.
 
-혼동행렬을 단순히 ‘틀린 개수’로 끝내지 말고 데이터 개선 질문으로 바꿉니다.
+```python
+callbacks = [
+    tf.keras.callbacks.EarlyStopping(
+        monitor="val_loss", patience=5,
+        restore_best_weights=True
+    ),
+    tf.keras.callbacks.ReduceLROnPlateau(
+        monitor="val_loss", factor=0.5,
+        patience=2, min_lr=1e-6
+    )
+]
 
-- 어느 두 클래스가 가장 많이 혼동되는가?
-- 그 클래스의 학습 표본 수와 다양성은 충분한가?
-- 라벨 자체가 모호한 이미지는 없는가?
+history = model.fit(
+    train_ds,
+    validation_data=val_ds,
+    epochs=30,
+    callbacks=callbacks,
+    class_weight=class_weight
+)
+```
+
+`epoch`는 전체 학습 데이터를 한 번 본 횟수입니다. 학습 정확도는 계속 오르는데 검증 손실이 증가하면 과적합 가능성이 큽니다. 최고 학습 정확도만 보고 모델을 선택하지 않습니다.
+
+### 기록표
+
+| 실험 | 증강 | 가중치 | 최고 검증 정확도 | 휴대폰 결과 |
+|---|---|---|---:|---|
+| A | 없음 | 없음 |  |  |
+| B | 약함 | 있음 |  |  |
 

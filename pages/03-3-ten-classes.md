@@ -1,28 +1,39 @@
-# 04-2. 학습·검증·테스트 분리
 
-학습 데이터는 가중치를 바꾸는 데 사용합니다. 검증 데이터는 학습 중 과적합을 관찰하고 최적 모델을 선택합니다. 테스트 데이터는 모든 선택이 끝난 뒤 최종 성능을 한 번 평가합니다.
-
-```text
-전체 100%
-├── 학습 70%
-├── 검증 15%
-└── 테스트 15%
-```
-
-같은 연속 촬영이나 복제 이미지가 서로 다른 집합에 들어가면 데이터 누수가 생깁니다. 가능하면 원본 출처나 촬영 묶음을 기준으로 분리합니다.
+Keras의 폴더 기반 로더는 하위 폴더 이름을 알파벳순으로 클래스 번호에 연결합니다. 이 프로젝트의 순서는 다음과 같습니다.
 
 ```python
-train_ds = tf.keras.utils.image_dataset_from_directory(
-    train_dir,
-    image_size=(180, 180),
-    batch_size=32,
-    label_mode="int",
-    shuffle=True,
-    seed=42
-)
+CLASS_NAMES = [
+    "battery", "cardboard", "clothes", "food", "glass",
+    "metal", "paper", "plastic", "shoes", "trash"
+]
 ```
 
-`seed`는 같은 조건에서 다시 실험할 가능성을 높입니다. 완전히 같은 결과를 보장하지는 않지만 비교 실험에 도움이 됩니다.
+폴더를 만들고 누락을 검사합니다.
 
-테스트 데이터로 여러 번 모델 구조를 수정하면 테스트가 사실상 검증 데이터가 됩니다. 최종 보고서에는 어떤 데이터로 어떤 결정을 했는지 기록합니다.
+```python
+from pathlib import Path
+
+MERGED_DIR = Path("/content/garbage_10class")
+
+for class_name in CLASS_NAMES:
+    (MERGED_DIR / class_name).mkdir(parents=True, exist_ok=True)
+
+missing = [name for name in CLASS_NAMES if not (MERGED_DIR / name).exists()]
+assert not missing, f"누락된 폴더: {missing}"
+```
+
+클래스별 수를 출력합니다.
+
+```python
+IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+
+for name in CLASS_NAMES:
+    count = sum(
+        1 for p in (MERGED_DIR / name).iterdir()
+        if p.suffix.lower() in IMAGE_EXTENSIONS
+    )
+    print(f"{name:10s}: {count:5d}")
+```
+
+라벨 순서는 학습, Colab 예측, `labels.json`, React 화면에서 끝까지 동일해야 합니다. 순서가 바뀌면 모델이 배터리라고 계산해도 앱이 카드보드라고 표시할 수 있습니다.
 

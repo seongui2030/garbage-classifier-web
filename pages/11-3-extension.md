@@ -1,36 +1,21 @@
-# 07-3. 깨끗한 추론 모델과 가중치 복사
 
-원본의 데이터 증강 층을 제외하고 같은 표준 CNN을 다시 만듭니다. 새 모델의 합성곱과 Dense 구조는 원본과 정확히 같아야 합니다.
+## 전이학습 비교
 
-```python
-original = tf.keras.models.load_model(MODEL_PATH, compile=False)
-clean = tf.keras.Sequential([
-    tf.keras.layers.Input(shape=(180,180,3), name="input_image"),
-    tf.keras.layers.Rescaling(1/255, name="rescaling"),
-    tf.keras.layers.Conv2D(32,3,padding="same",activation="relu",name="conv2d"),
-    tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Conv2D(64,3,padding="same",activation="relu",name="conv2d_1"),
-    tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Conv2D(128,3,padding="same",activation="relu",name="conv2d_2"),
-    tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.Conv2D(256,3,padding="same",activation="relu",name="conv2d_3"),
-    tf.keras.layers.MaxPooling2D(),
-    tf.keras.layers.GlobalAveragePooling2D(),
-    tf.keras.layers.Dropout(0.40),
-    tf.keras.layers.Dense(128,activation="relu"),
-    tf.keras.layers.Dropout(0.25),
-    tf.keras.layers.Dense(10,activation="softmax")
-])
-```
+MobileNetV2의 사전학습 특징을 사용하여 작은 CNN과 비교합니다. 파라미터 수, 학습 시간, 휴대폰 성능을 표로 기록합니다.
 
-가중치 개수와 모양을 검사하고 복사합니다.
+## 현실 데이터 능동 수집
 
-```python
-old_w, new_w = original.get_weights(), clean.get_weights()
-assert len(old_w) == len(new_w)
-assert all(a.shape == b.shape for a, b in zip(old_w, new_w))
-clean.set_weights(old_w)
-```
+웹앱에서 신뢰도 60% 미만 사진을 사용자의 동의를 받아 별도 검토 목록에 저장하는 설계를 토의합니다. 개인정보와 서버 비용, 라벨 검증이 필요하므로 바로 수집하지 않고 윤리 설계부터 합니다.
 
-무작위 입력으로 두 예측을 비교하여 최대 차이가 `1e-5` 이하인지 확인합니다. 실제 결과는 0이었습니다.
+## 지역 분리배출 안내
+
+모델의 재질 분류 결과와 지역별 공식 분리배출 지침을 구분합니다. AI 결과 뒤에 공식 안내 링크를 제공하되, 모델이 행정 규칙을 결정한다고 표현하지 않습니다.
+
+## 설명 가능한 시각화
+
+Grad-CAM으로 모델이 사진의 어느 영역을 보았는지 비교합니다. 물체보다 배경을 강조하면 데이터 편향의 증거가 될 수 있습니다.
+
+## PWA
+
+웹앱을 홈 화면에 설치할 수 있도록 manifest와 서비스 워커를 추가합니다. 모델 캐시 용량과 새 버전 갱신 전략을 함께 설계합니다.
 

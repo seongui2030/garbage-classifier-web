@@ -1,15 +1,37 @@
-# 10-2. 중첩 저장소 바로잡기
 
-상위 `C:\CNN-WebApp`에서 Git을 시작하면 GitHub 첫 화면에 `garbage-classifier-web` 폴더가 한 번 더 나타납니다. Actions는 저장소 최상위의 `.github/workflows`만 인식하므로 루트가 중요합니다.
+휴대폰 후면 카메라를 요청합니다.
 
-정상 확인:
-
-```powershell
-cd C:\CNN-WebApp\garbage-classifier-web
-git rev-parse --show-toplevel
+```jsx
+<input
+  type="file"
+  accept="image/*"
+  capture="environment"
+  onChange={handleImageChange}
+/>
 ```
 
-결과가 프로젝트 폴더여야 합니다. 원격 상태를 백업한 뒤 내부 프로젝트를 독립 저장소로 만들고 `--force-with-lease`로 올바른 구조를 반영했습니다. `--force-with-lease`는 확인한 원격 이후 다른 변경이 있으면 중단하므로 무조건 `--force`보다 안전합니다.
+브라우저와 기기에 따라 카메라 또는 갤러리 선택 화면이 나옵니다. 사진은 중앙 정사각형으로 자르고 `180×180`으로 바꿉니다.
 
-GitHub 첫 화면에 `.github`, `public`, `src`, `package.json`이 바로 보이면 성공입니다. VSCode도 `File → Open Folder`에서 프로젝트 폴더 자체를 엽니다.
+```jsx
+function makeInputTensor(imageElement) {
+  return tf.tidy(() => {
+    const original = tf.browser.fromPixels(imageElement, 3);
+    const [height, width] = original.shape;
+    const size = Math.min(height, width);
+    const top = Math.floor((height - size) / 2);
+    const left = Math.floor((width - size) / 2);
+
+    return tf.image
+      .resizeBilinear(
+        original.slice([top, left, 0], [size, size, 3]),
+        [180, 180],
+        true
+      )
+      .toFloat()
+      .expandDims(0);
+  });
+}
+```
+
+최종 형태는 `[1,180,180,3]`입니다. 모델 내부에 `Rescaling(1/255)`가 있으므로 `.div(255)`를 추가하지 않습니다.
 

@@ -1,22 +1,31 @@
-# 11-3. 확장 프로젝트
 
-## 전이학습 비교
+최신 Colab Python과 TensorFlow.js 의존성 사이에 `np.object`, `distutils`, Protobuf 충돌이 발생했습니다. 성공한 방법은 독립 환경입니다.
 
-MobileNetV2의 사전학습 특징을 사용하여 작은 CNN과 비교합니다. 파라미터 수, 학습 시간, 휴대폰 성능을 표로 기록합니다.
+```python
+import subprocess
 
-## 현실 데이터 능동 수집
+subprocess.run(["python", "-m", "pip", "install", "uv"], check=True)
+subprocess.run(["uv", "python", "install", "3.11"], check=True)
+subprocess.run([
+    "uv", "venv", "/content/tfjs-env", "--python", "3.11"
+], check=True)
+subprocess.run([
+    "uv", "pip", "install",
+    "--python", "/content/tfjs-env/bin/python",
+    "numpy==1.26.4", "tensorflow==2.19.0",
+    "tensorflowjs==4.22.0", "setuptools==75.8.2"
+], check=True)
+```
 
-웹앱에서 신뢰도 60% 미만 사진을 사용자의 동의를 받아 별도 검토 목록에 저장하는 설계를 토의합니다. 개인정보와 서버 비용, 라벨 검증이 필요하므로 바로 수집하지 않고 윤리 설계부터 합니다.
+CNN에 필요 없는 Decision Forests의 Protobuf 충돌은 변환 스크립트에서 빈 모듈로 차단했습니다.
 
-## 지역 분리배출 안내
+```python
+import sys, types
+sys.modules["tensorflow_decision_forests"] = types.ModuleType(
+    "tensorflow_decision_forests"
+)
+import tensorflowjs as tfjs
+```
 
-모델의 재질 분류 결과와 지역별 공식 분리배출 지침을 구분합니다. AI 결과 뒤에 공식 안내 링크를 제공하되, 모델이 행정 규칙을 결정한다고 표현하지 않습니다.
-
-## 설명 가능한 시각화
-
-Grad-CAM으로 모델이 사진의 어느 영역을 보았는지 비교합니다. 물체보다 배경을 강조하면 데이터 편향의 증거가 될 수 있습니다.
-
-## PWA
-
-웹앱을 홈 화면에 설치할 수 있도록 manifest와 서비스 워커를 추가합니다. 모델 캐시 용량과 새 버전 갱신 전략을 함께 설계합니다.
+이는 CNN 기능을 제거하지 않습니다. 의사결정숲 변환 모듈만 불러오지 않게 합니다.
 

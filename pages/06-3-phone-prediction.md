@@ -1,37 +1,32 @@
-# 05-3. 모델 저장과 다시 불러오기
 
-학습 모델은 Google Drive의 Keras 형식으로 저장합니다.
-
-```python
-MODEL_PATH = (
-    "/content/drive/MyDrive/CNN_Garbage_Project/"
-    "garbage_10class_cnn.keras"
-)
-
-model.save(MODEL_PATH)
-```
-
-다시 불러올 때 학습을 이어 가지 않고 예측·변환만 한다면 `compile=False`를 사용합니다.
+Colab에서 휴대폰 사진을 업로드하고 동일한 전처리로 예측합니다.
 
 ```python
-loaded_model = tf.keras.models.load_model(
-    MODEL_PATH,
-    compile=False
-)
+from google.colab import files
+from tensorflow.keras.utils import load_img, img_to_array
+import numpy as np
 
-print(loaded_model.input_shape)
-print(loaded_model.output_shape)
+uploaded = files.upload()
+image_path = next(iter(uploaded))
+
+image = load_img(image_path, target_size=(180, 180))
+array = img_to_array(image)
+batch = np.expand_dims(array, axis=0)
+
+probabilities = model.predict(batch, verbose=0)[0]
+order = np.argsort(probabilities)[::-1]
+
+for rank, index in enumerate(order, start=1):
+    print(rank, CLASS_NAMES[index], f"{probabilities[index]*100:.2f}%")
 ```
 
-정상 형태는 `(None,180,180,3)`과 `(None,10)`입니다. 파일 존재와 크기도 확인합니다.
+실제 사례에서 의류 39.77%, 금속 34.63%, 종이 20.02%가 나왔습니다. 1위만 보면 의류지만 2위와 차이가 작고 최고 확률도 낮습니다. 이것은 모델이 사진을 잘 이해했다고 보기 어렵습니다.
 
 ```python
-from pathlib import Path
-
-path = Path(MODEL_PATH)
-assert path.exists()
-print(path.stat().st_size / 1024**2, "MB")
+best = probabilities[order[0]] * 100
+if best < 60:
+    print("신뢰도가 낮습니다. 밝은 곳에서 물체 하나만 다시 촬영하세요.")
 ```
 
-이 프로젝트는 H5 중간 저장에서 직렬화 오류가 발생했으므로, 성공 경로에서는 H5를 사용하지 않았습니다. 원본 `.keras`를 불러와 표준 층으로 깨끗한 추론 모델을 다시 만들고 가중치를 복사한 뒤 TensorFlow.js로 직접 저장했습니다.
+실제 사진은 모델을 칭찬하기 위한 시험이 아니라 학습 데이터의 빈틈을 찾는 자료입니다.
 

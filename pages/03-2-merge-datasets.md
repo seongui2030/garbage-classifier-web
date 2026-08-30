@@ -1,26 +1,32 @@
-# 02-2. 합성곱 필터와 특징
 
-합성곱 필터는 작은 숫자 표입니다. `3×3` 필터는 주변 아홉 픽셀을 보며 특정 무늬가 강한지 계산합니다. 필터가 사진 위를 한 칸씩 이동하는 모습을 손전등으로 바닥을 비추는 장면에 비유할 수 있습니다.
+병합은 ‘폴더를 한곳에 복사’하는 것보다 신중해야 합니다. 같은 파일명이 존재하면 덮어쓸 수 있으므로 출처 접두사와 연속 번호를 붙입니다.
 
 ```python
-from tensorflow.keras import layers
+from pathlib import Path
+import shutil
 
-conv = layers.Conv2D(
-    filters=32,
-    kernel_size=3,
-    padding="same",
-    activation="relu"
-)
+def copy_images(source_dir, target_dir, prefix):
+    target_dir.mkdir(parents=True, exist_ok=True)
+    count = 0
+
+    for path in sorted(source_dir.iterdir()):
+        if path.suffix.lower() not in {".jpg", ".jpeg", ".png", ".webp"}:
+            continue
+
+        count += 1
+        new_name = f"{prefix}_{count:06d}{path.suffix.lower()}"
+        shutil.copy2(path, target_dir / new_name)
+
+    return count
 ```
 
-- `filters=32`: 서로 다른 특징 지도 32개를 만듭니다.
-- `kernel_size=3`: `3×3` 영역을 관찰합니다.
-- `padding="same"`: 출력의 가로·세로 크기를 유지합니다.
-- `relu`: 음수는 0으로 바꾸고 양수 특징을 남깁니다.
+`prefix`가 `data1_metal`, `data2_metal`이라면 파일 이름만 보고 출처를 알 수 있습니다. `:06d`는 번호를 여섯 자리로 맞춥니다.
 
-처음부터 사람이 ‘세로선 필터’를 입력하지 않습니다. 학습 과정이 필터 숫자를 바꾸며 분류에 유용한 특징을 찾아냅니다. 데이터가 충분하지 않으면 필터가 물체보다 배경색이나 촬영 장소를 외울 수도 있습니다. 이것이 실제 휴대폰 사진에서 성능이 떨어지는 이유 중 하나입니다.
+```python
+metal_count1 = copy_images(src1 / "metal", merged / "metal", "data1_metal")
+metal_count2 = copy_images(src2 / "metal", merged / "metal", "data2_metal")
+print(metal_count1, metal_count2)
+```
 
-### 종이 활동
-
-작은 `5×5` 흑백 격자와 `3×3` 필터를 종이에 그리고, 필터를 한 칸씩 이동하며 곱셈과 덧셈을 수행해 보세요. 모든 계산보다 ‘같은 필터가 사진 전체에서 반복 사용된다’는 점을 이해하는 것이 목표입니다.
+복사 후에는 원본 수와 대상 증가량이 맞는지 확인합니다. 성공 메시지를 무조건 출력하지 말고 실제 반환값과 파일 수를 비교합니다.
 

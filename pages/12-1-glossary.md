@@ -1,40 +1,36 @@
-# 05-1. CNN 층을 순서대로 쌓기
 
-```python
-import tensorflow as tf
+## 클래스 순서
 
-model = tf.keras.Sequential([
-    tf.keras.layers.Input(shape=(180, 180, 3)),
-    data_augmentation,
-    tf.keras.layers.Rescaling(1.0 / 255.0),
+| 번호 | 영문 | 한글 |
+|---:|---|---|
+| 0 | battery | 배터리 |
+| 1 | cardboard | 카드보드 |
+| 2 | clothes | 의류 |
+| 3 | food | 음식물·생물성 쓰레기 |
+| 4 | glass | 유리 |
+| 5 | metal | 금속 |
+| 6 | paper | 종이 |
+| 7 | plastic | 플라스틱 |
+| 8 | shoes | 신발 |
+| 9 | trash | 일반 쓰레기 |
 
-    tf.keras.layers.Conv2D(32, 3, padding="same", activation="relu"),
-    tf.keras.layers.MaxPooling2D(),
+## 용어
 
-    tf.keras.layers.Conv2D(64, 3, padding="same", activation="relu"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Conv2D(128, 3, padding="same", activation="relu"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.Conv2D(256, 3, padding="same", activation="relu"),
-    tf.keras.layers.MaxPooling2D(),
-
-    tf.keras.layers.GlobalAveragePooling2D(),
-    tf.keras.layers.Dropout(0.40),
-    tf.keras.layers.Dense(128, activation="relu"),
-    tf.keras.layers.Dropout(0.25),
-    tf.keras.layers.Dense(10, activation="softmax")
-])
-```
-
-채널 수를 늘리는 이유는 깊은 층이 더 다양한 특징 조합을 표현하게 하기 위해서입니다. Dropout은 학습 중 일부 연결을 임시로 꺼 특정 특징에 지나치게 의존하는 것을 줄입니다. 예측 때는 자동으로 꺼집니다.
-
-```python
-model.summary()
-assert model.input_shape == (None, 180, 180, 3)
-assert model.output_shape == (None, 10)
-```
-
-`None`은 배치 이미지 수가 고정되지 않았다는 뜻입니다.
+- 배치: 한 번에 모델에 넣는 이미지 묶음
+- 채널: RGB처럼 픽셀의 색 정보 축
+- 합성곱: 작은 필터를 이동하며 지역 특징을 계산하는 연산
+- 특징 지도: 필터가 찾은 특징의 위치와 강도
+- 풀링: 특징 지도의 크기를 줄여 요약하는 연산
+- 가중치: 학습으로 조정되는 모델 숫자
+- 손실: 예측과 정답 차이를 나타내는 학습 기준
+- 에포크: 전체 학습 데이터를 한 번 사용한 횟수
+- 과적합: 학습 데이터에는 강하지만 새 데이터에는 약한 상태
+- 일반화: 보지 못한 데이터에서도 규칙을 적용하는 능력
+- Softmax: 여러 점수를 합이 1인 확률로 바꾸는 함수
+- 텐서: 여러 차원의 숫자 배열
+- 추론: 학습된 모델로 새 입력을 예측하는 과정
+- 직렬화: 모델 구조와 가중치를 파일로 저장하는 과정
+- HMR: Vite가 저장된 코드 일부를 즉시 화면에 반영하는 기능
+- 커밋: Git에서 파일 상태에 설명을 붙여 기록하는 작업
+- 배포: 다른 사용자가 접속할 운영 위치에 웹앱을 게시하는 과정
 

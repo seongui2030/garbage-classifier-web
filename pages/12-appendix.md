@@ -1,38 +1,14 @@
-# 04-1. 180×180 RGB 변환
 
-여러 장을 한꺼번에 변환하여 별도 폴더에 저장할 수 있습니다. 원본을 보존하고 출력 폴더를 따로 사용합니다.
+부록은 수업 중 빠르게 찾아보는 자료입니다. 클래스 순서, 주요 용어, 성공 체크리스트, 확인문제를 제공합니다. 오류가 발생하면 코드를 무작정 바꾸기 전에 체크리스트에서 이전 성공 지점을 찾습니다.
 
-```python
-from PIL import Image, ImageOps
-from pathlib import Path
+프로젝트의 핵심 약속을 다시 정리합니다.
 
-def convert_to_180(source, target):
-    target.mkdir(parents=True, exist_ok=True)
-
-    for path in source.iterdir():
-        if path.suffix.lower() not in {".jpg", ".jpeg", ".png"}:
-            continue
-
-        with Image.open(path) as image:
-            image = image.convert("RGB")
-            image = ImageOps.fit(
-                image,
-                (180, 180),
-                method=Image.Resampling.LANCZOS
-            )
-            image.save(target / f"{path.stem}.jpg", quality=92)
+```text
+입력: RGB, 180×180, 배치 차원 포함
+정규화: 모델 내부 Rescaling(1/255)
+출력: 알파벳순 10개 클래스 Softmax
+웹 모델: model.json + 모든 bin
+웹 경로: import.meta.env.BASE_URL
+배포: main Push → GitHub Actions → dist → Pages
 ```
-
-`ImageOps.fit`은 비율을 찌그러뜨리지 않고 중앙을 잘라 정사각형으로 만듭니다. 단순 `resize((180,180))`는 긴 사진을 눌러 물체 모양을 왜곡할 수 있습니다.
-
-학습 로더가 자동 리사이즈한다면 모든 원본을 미리 저장 변환할 필요는 없습니다. 다만 휴대폰 앱과 같은 전처리를 확인하기 위한 별도 실습으로 유용합니다.
-
-### 검사
-
-```python
-with Image.open(sample_path) as image:
-    print(image.size, image.mode)
-```
-
-정상 출력은 `(180, 180) RGB`입니다.
 

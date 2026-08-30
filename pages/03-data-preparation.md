@@ -1,23 +1,18 @@
-# 07-1. 웹 모델 파일의 구조
+
+좋은 모델의 출발점은 좋은 데이터입니다. 이 프로젝트는 두 Kaggle 데이터셋을 결합하여 공통 여섯 클래스와 추가 네 클래스를 구성합니다.
 
 ```text
-tensorflowjs_model/
-├── model.json
-├── group1-shard1of1.bin
-├── labels.json
-└── labels.txt
+공통: metal, cardboard, glass, paper, plastic, trash
+추가: food, battery, clothes, shoes
 ```
 
-`model.json`에는 층 구조, 활성화 함수, 입력 형태, 가중치 파일 이름이 있습니다. `.bin`에는 학습된 실수 가중치가 이진 형식으로 저장됩니다. 모델이 크면 여러 shard 파일로 나뉠 수 있으며 모두 함께 배포해야 합니다.
+두 데이터셋에서 같은 이름이 같은 의미인지 반드시 확인해야 합니다. `biological`은 이 프로젝트에서 `food`로 통합하지만, 실제로 식품 외 생물성 쓰레기가 포함되었는지 표본을 확인합니다. 단순히 폴더 이름만 바꾸면 의미가 달라질 수 있습니다.
 
-`labels.json`은 모델 자체가 만든 파일이 아니라 앱이 출력 번호와 이름을 연결하기 위한 파일입니다.
+데이터 준비의 성공 기준은 다음과 같습니다.
 
-```json
-[
-  {"index": 0, "english": "battery", "korean": "배터리"},
-  {"index": 1, "english": "cardboard", "korean": "카드보드"}
-]
-```
-
-파일을 수정할 때 `.bin` 이름을 바꾸면 `model.json`의 `weightsManifest`와 불일치합니다. 네 파일을 같은 `public/model` 폴더에 둡니다.
+- 열 개 클래스 폴더가 정확히 존재합니다.
+- 클래스별 이미지 수를 표로 확인합니다.
+- 확장자가 이미지여도 실제로 열리지 않는 파일을 제거합니다.
+- 같은 사진이 학습과 테스트에 동시에 들어가지 않게 합니다.
+- 사람이 보아도 애매한 표본은 검토 폴더로 이동합니다.
 

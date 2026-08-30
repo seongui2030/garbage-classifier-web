@@ -1,8 +1,24 @@
-# 05. 4블록 CNN 모델 만들기
 
-이 장에서는 입력 `180×180×3`, 출력 10개의 CNN을 만듭니다. 합성곱과 풀링을 네 번 사용하고, 마지막에 전체 평균과 Dense 층으로 분류합니다. 모델 내부에 정규화가 있으므로 학습과 웹앱의 입력 약속이 단순해집니다.
+프로젝트 루트에서 빌드 후 Git에 기록합니다.
 
-모델을 만들 때는 층 이름보다 형태 변화에 집중합니다. `model.summary()`에서 입력과 출력, 파라미터 수를 확인합니다. 모델이 너무 크면 학습 시간이 길고 과적합 위험이 커지며 웹 다운로드도 느려집니다. 이 모델은 약 4.91MB의 Keras 파일이었고, TensorFlow.js 가중치는 약 1.61MB였습니다.
+```powershell
+npm run build
+git status
+git add .
+git commit -m "쓰레기 CNN 분류 React 웹앱 구현"
+git branch -M main
+git remote add origin https://github.com/사용자이름/garbage-classifier-web.git
+git push -u origin main
+```
 
-학습은 모델 구조, 데이터 품질, 손실함수, 최적화 방법이 함께 작동하는 과정입니다. 한 번에 여러 설정을 바꾸지 않고 실험 하나마다 무엇을 바꿨는지 기록합니다.
+`node_modules`와 `dist`는 `.gitignore`로 제외합니다. `package.json`과 `package-lock.json`을 올리면 Actions가 동일 패키지를 설치할 수 있습니다.
+
+원격에 README 같은 커밋이 이미 있어 Push가 거부되면 강제 Push부터 하지 않습니다. 원격 내용을 `fetch`하고 병합하거나, 프로젝트 루트가 맞는지 먼저 확인합니다.
+
+```powershell
+git rev-parse --show-toplevel
+git remote -v
+```
+
+앞으로 수정 후에는 `add → commit → push` 세 단계로 자동 재배포됩니다.
 

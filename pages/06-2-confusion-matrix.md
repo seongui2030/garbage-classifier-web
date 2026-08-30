@@ -1,36 +1,27 @@
-# 02-1. 이미지는 숫자 배열이다
 
-컬러 사진의 한 픽셀은 빨강(R), 초록(G), 파랑(B) 세 숫자로 표현됩니다. 각 값은 보통 0부터 255입니다. 검정은 `[0,0,0]`, 흰색은 `[255,255,255]`입니다.
-
-```python
-pixel = [120, 200, 35]
-red, green, blue = pixel
-print(green)  # 200
-```
-
-`180×180` RGB 사진 한 장의 형태는 `(180,180,3)`입니다. 모델은 여러 장을 한꺼번에 처리하므로 맨 앞에 배치 차원을 붙입니다.
-
-```text
-사진 한 장: (180, 180, 3)
-32장 배치: (32, 180, 180, 3)
-한 장 예측: (1, 180, 180, 3)
-```
-
-NumPy 배열로 생각하면 파이썬의 중첩 리스트와 비슷합니다. 그러나 실제 값의 수는 `180×180×3=97,200`개이므로 일반 리스트보다 배열 연산이 효율적입니다.
+혼동행렬은 실제 클래스와 예측 클래스의 조합을 표로 나타냅니다.
 
 ```python
 import numpy as np
+from sklearn.metrics import confusion_matrix, classification_report
 
-image = np.zeros((180, 180, 3), dtype=np.uint8)
-print(image.shape)
-print(image.dtype)
+y_true = []
+y_pred = []
+
+for images, labels in test_ds:
+    probs = model.predict(images, verbose=0)
+    y_true.extend(labels.numpy())
+    y_pred.extend(np.argmax(probs, axis=1))
+
+cm = confusion_matrix(y_true, y_pred)
+print(classification_report(y_true, y_pred, target_names=CLASS_NAMES))
 ```
 
-`shape`는 배열의 구조이고, `dtype`은 각 숫자의 자료형입니다. 학습 때는 보통 `float32`로 바꿉니다. 이 모델은 내부의 `Rescaling(1/255)` 층이 `0~255`를 `0~1`로 변환합니다.
+대각선은 정답, 대각선 밖은 혼동입니다. 종이를 카드보드로 자주 예측한다면 두 클래스의 두께, 접힘, 표면 질감을 더 다양하게 학습해야 합니다. 의류와 금속 혼동이 발생했다면 실제 사진을 보고 반사광, 배경, 물체 형태 등 가능한 원인을 기록합니다.
 
-### 확인문제
+혼동행렬을 단순히 ‘틀린 개수’로 끝내지 말고 데이터 개선 질문으로 바꿉니다.
 
-1. 흑백 이미지의 마지막 채널 수는 보통 몇 개인가요?
-2. 사진 16장의 배치 형태를 적어 보세요.
-3. React에서 다시 `255`로 나누면 안 되는 이유를 말해 보세요.
+- 어느 두 클래스가 가장 많이 혼동되는가?
+- 그 클래스의 학습 표본 수와 다양성은 충분한가?
+- 라벨 자체가 모호한 이미지는 없는가?
 

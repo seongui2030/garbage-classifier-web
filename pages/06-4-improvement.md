@@ -1,40 +1,26 @@
-# 03-3. 10개 클래스 폴더 만들기
 
-Keras의 폴더 기반 로더는 하위 폴더 이름을 알파벳순으로 클래스 번호에 연결합니다. 이 프로젝트의 순서는 다음과 같습니다.
+확률을 억지로 높이는 것이 목표가 아닙니다. 정답 사진에서 올바른 클래스 확률이 높아지고, 틀린 사진에서는 불확실성을 정직하게 표현하는 모델이 목표입니다.
 
-```python
-CLASS_NAMES = [
-    "battery", "cardboard", "clothes", "food", "glass",
-    "metal", "paper", "plastic", "shoes", "trash"
-]
-```
+개선 우선순위는 다음과 같습니다.
 
-폴더를 만들고 누락을 검사합니다.
+1. 실제 휴대폰 환경의 새 사진을 클래스마다 수집합니다.
+2. 틀린 사진을 오류 유형별로 정리합니다.
+3. 클래스 수와 다양성을 균형 있게 보완합니다.
+4. 과도하지 않은 밝기·회전·확대 증강을 사용합니다.
+5. MobileNetV2 같은 사전학습 모델의 전이학습을 비교합니다.
+6. 최고 확률과 1·2위 차이를 함께 판단합니다.
 
-```python
-from pathlib import Path
-
-MERGED_DIR = Path("/content/garbage_10class")
-
-for class_name in CLASS_NAMES:
-    (MERGED_DIR / class_name).mkdir(parents=True, exist_ok=True)
-
-missing = [name for name in CLASS_NAMES if not (MERGED_DIR / name).exists()]
-assert not missing, f"누락된 폴더: {missing}"
-```
-
-클래스별 수를 출력합니다.
+판단 보류 규칙 예시입니다.
 
 ```python
-IMAGE_EXTENSIONS = {".jpg", ".jpeg", ".png", ".webp"}
+best = sorted_probs[0]
+second = sorted_probs[1]
 
-for name in CLASS_NAMES:
-    count = sum(
-        1 for p in (MERGED_DIR / name).iterdir()
-        if p.suffix.lower() in IMAGE_EXTENSIONS
-    )
-    print(f"{name:10s}: {count:5d}")
+if best < 0.60 or best - second < 0.15:
+    decision = "판단 보류"
+else:
+    decision = class_name
 ```
 
-라벨 순서는 학습, Colab 예측, `labels.json`, React 화면에서 끝까지 동일해야 합니다. 순서가 바뀌면 모델이 배터리라고 계산해도 앱이 카드보드라고 표시할 수 있습니다.
+수집한 현실 사진을 다시 학습에 사용할 때는 일부를 새로운 테스트 집합으로 남깁니다. 모든 현실 사진을 학습에 넣으면 개선 효과를 객관적으로 평가할 자료가 사라집니다.
 

@@ -1,31 +1,24 @@
-# 08-2. TensorFlow.js 모델 불러오기
 
-```jsx
-import * as tf from "@tensorflow/tfjs";
+최대 풀링은 작은 영역에서 가장 큰 특징값만 남깁니다. 예를 들어 `2×2` 영역 네 값이 `[0.1,0.8,0.3,0.2]`라면 `0.8`을 남깁니다. 위치가 조금 달라져도 중요한 특징이 유지되며 계산량이 줄어듭니다.
 
-async function loadModel() {
-  await tf.ready();
-
-  const modelUrl =
-    `${import.meta.env.BASE_URL}model/model.json`;
-  const labelsUrl =
-    `${import.meta.env.BASE_URL}model/labels.json`;
-
-  const [model, response] = await Promise.all([
-    tf.loadLayersModel(modelUrl),
-    fetch(labelsUrl),
-  ]);
-
-  if (!response.ok) {
-    throw new Error("labels.json 불러오기 실패");
-  }
-
-  const labels = await response.json();
-  return { model, labels };
-}
+```python
+layers.MaxPooling2D()
 ```
 
-`await`는 비동기 작업이 끝날 때까지 함수의 다음 줄을 기다립니다. 모델과 라벨을 동시에 요청하여 시간을 줄입니다. `BASE_URL`은 로컬의 `/`와 GitHub Pages의 `/garbage-classifier-web/`을 자동으로 맞춥니다.
+네 블록 뒤에는 `GlobalAveragePooling2D`를 사용합니다. 각 특징 지도의 평균을 하나씩 계산하여 긴 벡터로 바꿉니다. `Flatten`보다 파라미터 수를 줄이는 데 유리합니다.
 
-빈 입력으로 한 번 예열하면 첫 실제 예측 지연을 줄일 수 있습니다. 사용이 끝난 텐서는 `dispose()`하여 휴대폰 메모리를 정리합니다.
+마지막 `Dense(10, activation="softmax")`는 열 개 점수를 확률로 바꿉니다.
+
+```python
+layers.Dense(10, activation="softmax")
+```
+
+Softmax 출력의 합은 약 1입니다.
+
+```python
+probs = [0.7, 0.2, 0.1]
+print(sum(probs))  # 1.0
+```
+
+가장 큰 확률이 정답이라는 보장은 없습니다. 39.77% 의류, 34.63% 금속처럼 두 값이 비슷하면 모델이 혼란스러운 상태입니다. 따라서 웹앱은 1위만 보여 주지 않고 10개 전체 확률과 낮은 신뢰도 안내를 함께 제공합니다.
 

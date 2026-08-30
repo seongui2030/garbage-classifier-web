@@ -1,32 +1,15 @@
-# 07-2. Python 3.11 변환 환경
 
-최신 Colab Python과 TensorFlow.js 의존성 사이에 `np.object`, `distutils`, Protobuf 충돌이 발생했습니다. 성공한 방법은 독립 환경입니다.
+전처리는 서로 다른 크기와 방향의 사진을 모델이 받을 수 있는 일정한 숫자 형태로 바꾸는 과정입니다. 이 프로젝트의 입력 약속은 `180×180`, RGB 3채널, 배치 형태입니다.
 
-```python
-import subprocess
+전처리는 학습과 서비스에서 같아야 합니다. 학습은 `0~255`를 받은 뒤 모델 내부에서 `1/255`로 정규화합니다. 웹앱도 같은 방식으로 `0~255` 텐서를 전달해야 합니다. 한쪽에서만 중앙 자르기를 사용하거나 정규화를 두 번 하면 예측이 달라질 수 있습니다.
 
-subprocess.run(["python", "-m", "pip", "install", "uv"], check=True)
-subprocess.run(["uv", "python", "install", "3.11"], check=True)
-subprocess.run([
-    "uv", "venv", "/content/tfjs-env", "--python", "3.11"
-], check=True)
-subprocess.run([
-    "uv", "pip", "install",
-    "--python", "/content/tfjs-env/bin/python",
-    "numpy==1.26.4", "tensorflow==2.19.0",
-    "tensorflowjs==4.22.0", "setuptools==75.8.2"
-], check=True)
+```text
+이미지 읽기
+→ RGB 변환
+→ 크기 통일
+→ 배치 구성
+→ 모델 내부 정규화
 ```
 
-CNN에 필요 없는 Decision Forests의 Protobuf 충돌은 변환 스크립트에서 빈 모듈로 차단했습니다.
-
-```python
-import sys, types
-sys.modules["tensorflow_decision_forests"] = types.ModuleType(
-    "tensorflow_decision_forests"
-)
-import tensorflowjs as tfjs
-```
-
-이는 CNN 기능을 제거하지 않습니다. 의사결정숲 변환 모듈만 불러오지 않게 합니다.
+전처리는 화려한 기법보다 ‘일관성’이 중요합니다. 데이터 폴더의 이미지 수, 배치 형태, 클래스 순서, 픽셀 범위를 출력하여 확인합니다.
 

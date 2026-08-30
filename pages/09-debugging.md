@@ -1,29 +1,13 @@
-# 08-1. 프로젝트 생성과 모델 배치
 
-```powershell
-npm create vite@latest garbage-classifier-web -- --template react
-cd garbage-classifier-web
-npm install
-npm install @tensorflow/tfjs
-npm run dev
-```
+오류 해결의 기본 순서는 다음과 같습니다.
 
-모델 파일을 다음과 같이 배치합니다.
+1. 오류의 마지막 줄을 읽습니다.
+2. 처음 실패한 자신의 파일과 줄 번호를 찾습니다.
+3. 데이터, 경로, 버전, 형태 중 어느 범주인지 분류합니다.
+4. 한 번에 한 가지를 수정합니다.
+5. 성공 조건을 출력하여 확인합니다.
 
-```text
-public/model/
-├── model.json
-├── group1-shard1of1.bin
-├── labels.json
-└── labels.txt
-```
+긴 빨간 화면의 위쪽은 호출 경로이고, 마지막 예외 이름과 메시지가 핵심인 경우가 많습니다. 경고와 오류도 구분합니다. `GPU will not be used`는 CPU 변환 안내였고, `exit code 0`이면 변환은 성공했습니다.
 
-개발 서버의 포트가 5173 사용 중이면 Vite가 5174를 선택합니다. 오류가 아니므로 터미널의 `Local` 주소를 사용합니다.
-
-```text
-http://localhost:5174/model/model.json
-http://localhost:5174/model/labels.json
-```
-
-JSON이 보이면 정적 파일 경로가 성공한 것입니다. 기본 Vite 화면이 보이면 주소 끝의 `/model/...`이 빠졌거나 다른 포트에 접속한 것입니다.
+실패 경험을 지우지 않고 원인·해결·검사 결과를 기록하면 다음 프로젝트의 참고 자료가 됩니다.
 

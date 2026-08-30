@@ -1,38 +1,24 @@
-# 08-3. 휴대폰 사진 전처리
 
-휴대폰 후면 카메라를 요청합니다.
+## 16차시 예시
 
-```jsx
-<input
-  type="file"
-  accept="image/*"
-  capture="environment"
-  onChange={handleImageChange}
-/>
-```
+| 차시 | 핵심 활동 | 성공 확인 |
+|---:|---|---|
+| 1 | 문제 정의와 클래스 토의 | 입력·출력 정의 |
+| 2 | 이미지 배열과 CNN 원리 | shape 설명 |
+| 3 | Kaggle 데이터 확인 | 출처 기록 |
+| 4 | 두 데이터셋 병합 | 클래스별 수 출력 |
+| 5 | 손상·오분류 점검 | 검토 폴더 작성 |
+| 6 | 리사이즈와 분리 | 배치 형태 확인 |
+| 7 | 증강과 불균형 | 가중치 계산 |
+| 8 | 4블록 CNN 구성 | summary 해석 |
+| 9 | 학습과 곡선 | 과적합 판단 |
+| 10 | 테스트·혼동행렬 | 약점 클래스 선정 |
+| 11 | 휴대폰 일반화 | 오류 사진 수집 |
+| 12 | TensorFlow.js 변환 | JSON·bin 검사 |
+| 13 | React·Vite 기초 | 기본 화면 실행 |
+| 14 | 사진 전처리·예측 UI | 열 개 확률 표시 |
+| 15 | Git·Pages 배포 | HTTPS 접속 |
+| 16 | 발표·상호평가 | 모델 카드 제출 |
 
-브라우저와 기기에 따라 카메라 또는 갤러리 선택 화면이 나옵니다. 사진은 중앙 정사각형으로 자르고 `180×180`으로 바꿉니다.
-
-```jsx
-function makeInputTensor(imageElement) {
-  return tf.tidy(() => {
-    const original = tf.browser.fromPixels(imageElement, 3);
-    const [height, width] = original.shape;
-    const size = Math.min(height, width);
-    const top = Math.floor((height - size) / 2);
-    const left = Math.floor((width - size) / 2);
-
-    return tf.image
-      .resizeBilinear(
-        original.slice([top, left, 0], [size, size, 3]),
-        [180, 180],
-        true
-      )
-      .toFloat()
-      .expandDims(0);
-  });
-}
-```
-
-최종 형태는 `[1,180,180,3]`입니다. 모델 내부에 `Rescaling(1/255)`가 있으므로 `.div(255)`를 추가하지 않습니다.
+매 차시 마지막 5분은 종료 티켓으로 사용합니다. ‘오늘 확인한 숫자 또는 형태 한 가지’, ‘아직 이해되지 않은 용어 한 가지’를 작성합니다.
 

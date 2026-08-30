@@ -1,28 +1,24 @@
-# 08-4. 최고 클래스와 10개 확률 표시
 
-```jsx
-const output = model.predict(inputTensor);
-const values = await output.data();
+CNN은 합성곱 신경망(Convolutional Neural Network)의 약자입니다. 일반 신경망이 모든 픽셀을 한꺼번에 연결한다면, CNN은 작은 창을 움직이며 가까운 픽셀 사이의 무늬를 찾습니다. 초기 층은 선과 모서리를, 깊은 층은 질감과 물체 일부를 조합합니다.
 
-const results = labels.map((label, index) => ({
-  ...label,
-  probability: Number(values[index]) * 100,
-}));
+CNN을 학생 눈높이에서 세 문장으로 요약하면 다음과 같습니다.
 
-results.sort((a, b) => b.probability - a.probability);
+1. 작은 필터가 사진을 훑으며 특징을 찾습니다.
+2. 풀링이 중요한 특징을 간단히 요약합니다.
+3. 마지막 층이 특징을 10개 클래스의 확률로 바꿉니다.
+
+이 모델은 합성곱 블록을 네 번 사용합니다. 채널 수는 `32 → 64 → 128 → 256`으로 증가합니다. 사진의 가로·세로 크기는 풀링을 거치며 작아지고, 특징 종류는 늘어납니다.
+
+```text
+180×180×3
+→ Conv32 → Pool
+→ Conv64 → Pool
+→ Conv128 → Pool
+→ Conv256 → Pool
+→ GlobalAveragePooling
+→ Dense128
+→ Dense10 Softmax
 ```
 
-`map`은 라벨 열 개와 확률 열 개를 같은 번호로 묶습니다. `sort`는 확률이 큰 순서로 정렬합니다. 원래 `index`는 보존해야 모델 번호를 추적할 수 있습니다.
-
-```jsx
-const best = results[0];
-
-{best.probability < 60 && (
-  <p>신뢰도가 낮습니다. 밝은 곳에서 물체 하나만 다시 촬영하세요.</p>
-)}
-```
-
-화면에는 1위 이름, 영문 이름, 신뢰도, 낮은 신뢰도 안내, 열 개 막대그래프를 표시합니다. 확률 막대 너비는 `${probability}%`로 설정할 수 있습니다.
-
-접근성을 위해 사진에는 `alt`, 버튼에는 설명 가능한 글자를 넣고, 색만으로 성공·실패를 구분하지 않습니다.
+학습은 정답과 예측의 차이를 줄이도록 필터 숫자를 조금씩 바꾸는 과정입니다. 한 번의 순방향 계산, 손실 계산, 역전파, 가중치 갱신이 반복됩니다. 학생은 수식을 모두 외우기보다 각 층이 입력 형태를 어떻게 바꾸는지 먼저 이해하는 것이 좋습니다.
 

@@ -1,13 +1,36 @@
-# 08. React·Vite 웹앱
 
-React는 화면을 상태에 따라 다시 그리는 도구이고, Vite는 프로젝트 생성·개발 서버·배포 빌드를 담당합니다. 학생은 처음부터 모든 개념을 외우지 않고 다음 상태 변화에 집중합니다.
+학습 모델은 Google Drive의 Keras 형식으로 저장합니다.
 
-```text
-모델 로딩 중 → 모델 준비 완료
-사진 없음 → 사진 미리보기
-예측 전 → 예측 중 → 결과 표시
-정상 → 오류 안내
+```python
+MODEL_PATH = (
+    "/content/drive/MyDrive/CNN_Garbage_Project/"
+    "garbage_10class_cnn.keras"
+)
+
+model.save(MODEL_PATH)
 ```
 
-이번 장에서는 먼저 `App.jsx` 하나에 전체 기능을 넣습니다. 기능이 성공한 뒤 모델 로딩, 이미지 전처리, 결과 UI를 파일로 나누는 것이 모듈화입니다. 처음부터 지나치게 나누면 데이터가 어느 파일로 이동하는지 이해하기 어렵습니다.
+다시 불러올 때 학습을 이어 가지 않고 예측·변환만 한다면 `compile=False`를 사용합니다.
+
+```python
+loaded_model = tf.keras.models.load_model(
+    MODEL_PATH,
+    compile=False
+)
+
+print(loaded_model.input_shape)
+print(loaded_model.output_shape)
+```
+
+정상 형태는 `(None,180,180,3)`과 `(None,10)`입니다. 파일 존재와 크기도 확인합니다.
+
+```python
+from pathlib import Path
+
+path = Path(MODEL_PATH)
+assert path.exists()
+print(path.stat().st_size / 1024**2, "MB")
+```
+
+이 프로젝트는 H5 중간 저장에서 직렬화 오류가 발생했으므로, 성공 경로에서는 H5를 사용하지 않았습니다. 원본 `.keras`를 불러와 표준 층으로 깨끗한 추론 모델을 다시 만들고 가중치를 복사한 뒤 TensorFlow.js로 직접 저장했습니다.
 
