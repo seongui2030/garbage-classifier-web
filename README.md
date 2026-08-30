@@ -95,3 +95,5 @@ Kaggle 데이터 확인 → 두 데이터셋 결합 → 10개 폴더 정리 → 
 - [Kaggle data#1]()
 - [Kaggle data#2](https://www.kaggle.com/code/killa92/f1-0-96-garbage-classification-project)
 
+## 애플리케이션 주소
+- [AI 쓰레기 분류 ](https://seongui2030.github.io/garbage-classifier-web-student/)
