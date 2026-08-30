@@ -1,92 +1,57 @@
-# 고등학생을 위한 합성곱 신경망 쓰레기 분류 프로젝트
+# 목차
 
-이 교재는 파이썬의 변수, 기본 자료형, 조건문, 반복문, 함수 정도를 학습한 고등학생이 이미지 인공지능을 처음부터 완성해 보는 프로젝트형 참고서입니다. Google Colab과 Kaggle 데이터로 10종 쓰레기 분류 CNN을 만들고, 실제 휴대폰 사진으로 일반화 성능을 확인한 다음, Keras 모델을 TensorFlow.js로 변환하여 React·Vite 웹앱으로 배포합니다.
+- [01. 프로젝트 시작하기](pages/01-getting-started.md)
+  - [01-1. 우리가 해결할 문제](pages/01-1-problem.md)
+  - [01-2. 전체 개발 과정](pages/01-2-roadmap.md)
+  - [01-3. 개발 환경과 준비물](pages/01-3-environment.md)
+- [02. 이미지와 CNN의 기초](pages/02-cnn-basics.md)
+  - [02-1. 이미지는 숫자 배열이다](pages/02-1-image-array.md)
+  - [02-2. 합성곱 필터와 특징](pages/02-2-convolution.md)
+  - [02-3. 풀링과 분류 확률](pages/02-3-pooling-softmax.md)
+- [03. Kaggle 데이터 준비](pages/03-data-preparation.md)
+  - [03-1. Kaggle 인증과 다운로드](pages/03-1-kaggle-api.md)
+  - [03-2. 두 데이터셋 합치기](pages/03-2-merge-datasets.md)
+  - [03-3. 10개 클래스 폴더 만들기](pages/03-3-ten-classes.md)
+  - [03-4. 손상·중복·오분류 이미지 점검](pages/03-4-cleaning.md)
+- [04. 이미지 전처리](pages/04-preprocessing.md)
+  - [04-1. 180×180 RGB 변환](pages/04-1-resize.md)
+  - [04-2. 학습·검증·테스트 분리](pages/04-2-split.md)
+  - [04-3. 데이터 증강](pages/04-3-augmentation.md)
+  - [04-4. 클래스 불균형과 가중치](pages/04-4-class-imbalance.md)
+- [05. 4블록 CNN 모델 만들기](pages/05-build-model.md)
+  - [05-1. CNN 층을 순서대로 쌓기](pages/05-1-four-blocks.md)
+  - [05-2. 컴파일과 학습](pages/05-2-train.md)
+  - [05-3. 모델 저장과 다시 불러오기](pages/05-3-save-load.md)
+- [06. 모델 평가와 일반화](pages/06-evaluation.md)
+  - [06-1. 정확도와 손실 해석](pages/06-1-metrics.md)
+  - [06-2. 혼동행렬과 클래스별 성능](pages/06-2-confusion-matrix.md)
+  - [06-3. 휴대폰 사진 한 장 분류](pages/06-3-phone-prediction.md)
+  - [06-4. 낮은 신뢰도 개선](pages/06-4-improvement.md)
+- [07. TensorFlow.js 모델 변환](pages/07-tensorflowjs.md)
+  - [07-1. 웹 모델 파일의 구조](pages/07-1-model-files.md)
+  - [07-2. Python 3.11 변환 환경](pages/07-2-python-env.md)
+  - [07-3. 깨끗한 추론 모델과 가중치 복사](pages/07-3-clean-model.md)
+  - [07-4. model.json과 bin 생성·검사](pages/07-4-convert-verify.md)
+- [08. React·Vite 웹앱](pages/08-react-vite.md)
+  - [08-1. 프로젝트 생성과 모델 배치](pages/08-1-create-project.md)
+  - [08-2. TensorFlow.js 모델 불러오기](pages/08-2-load-model.md)
+  - [08-3. 휴대폰 사진 전처리](pages/08-3-browser-preprocess.md)
+  - [08-4. 최고 클래스와 10개 확률 표시](pages/08-4-ui-results.md)
+- [09. 오류를 읽고 해결하기](pages/09-debugging.md)
+  - [09-1. 포트와 패키지 오류](pages/09-1-vite-errors.md)
+  - [09-2. Keras 3과 TensorFlow.js 호환 수정](pages/09-2-model-json-fix.md)
+  - [09-3. 데이터 편향과 낮은 확률](pages/09-3-ml-errors.md)
+- [10. Git과 GitHub Pages 배포](pages/10-deployment.md)
+  - [10-1. Git 저장소와 Push](pages/10-1-git-push.md)
+  - [10-2. 중첩 저장소 바로잡기](pages/10-2-repository-root.md)
+  - [10-3. Vite base와 deploy.yml](pages/10-3-actions.md)
+  - [10-4. Pages 활성화와 배포 확인](pages/10-4-pages.md)
+- [11. 수업 프로젝트 운영](pages/11-class-project.md)
+  - [11-1. 차시별 수업안](pages/11-1-lessons.md)
+  - [11-2. 수행평가 루브릭](pages/11-2-rubric.md)
+  - [11-3. 확장 프로젝트](pages/11-3-extension.md)
+- [12. 부록](pages/12-appendix.md)
+  - [12-1. 전체 클래스와 코드 용어](pages/12-1-glossary.md)
+  - [12-2. 성공 체크리스트](pages/12-2-checklist.md)
+  - [12-3. 확인문제와 예시 답안](pages/12-3-questions.md)
 
-교재의 핵심 질문은 세 가지입니다.
-
-1. 컴퓨터는 사진을 어떻게 숫자로 바꾸어 학습하는가?
-2. 학습 정확도가 높아도 휴대폰 사진에서 틀리는 이유는 무엇인가?
-3. 완성한 모델을 친구들이 휴대폰에서 사용하도록 어떻게 공유하는가?
-
-## 학습 대상
-
-- 파이썬의 `int`, `float`, `str`, `list`, `dict`를 이해하는 학생
-- `if`, `for`, `while`, 함수의 기본 사용법을 익힌 학생
-- 인공지능과 웹앱을 처음 배우는 학생
-- CNN 모델을 실생활 문제에 연결해 보고 싶은 학생
-
-## 프로젝트 결과물
-
-- 10종 쓰레기 이미지 데이터셋
-- 입력 크기 `180×180×3`의 4블록 CNN
-- 클래스 불균형을 보완한 학습 모델
-- 휴대폰 사진 한 장을 분류하는 평가 코드
-- TensorFlow.js용 `model.json`과 `.bin`
-- React·Vite 기반 반응형 웹앱
-- GitHub Actions를 이용한 GitHub Pages 배포
-
-## 10개 클래스
-
-| 모델 번호 | 영문 라벨 | 한글 라벨 |
-|---:|---|---|
-| 0 | battery | 배터리 |
-| 1 | cardboard | 카드보드 |
-| 2 | clothes | 의류 |
-| 3 | food | 음식물·생물성 쓰레기 |
-| 4 | glass | 유리 |
-| 5 | metal | 금속 |
-| 6 | paper | 종이 |
-| 7 | plastic | 플라스틱 |
-| 8 | shoes | 신발 |
-| 9 | trash | 일반 쓰레기 |
-
-## 성공한 전체 과정
-
-Kaggle 데이터 확인 → 두 데이터셋 결합 → 10개 폴더 정리 → 손상 이미지 제거 → `180×180` 전처리 → 학습·검증·테스트 분리 → 클래스 가중치 계산 → 4블록 CNN 학습 → 테스트 평가 → 휴대폰 사진 분류 → Keras 모델 확인 → Python 3.11 변환 환경 생성 → 웹 추론용 CNN 재구성 → 가중치 복사 및 예측 일치 검사 → TensorFlow.js 변환 → `model.json`, `.bin`, 라벨 파일 생성 → React·Vite 프로젝트 생성 → 휴대폰 이미지 입력과 확률 출력 구현 → Git 저장소 Push → GitHub Actions로 Pages 배포
-
-## 교재 구성
-
-전체 목차는 [TOC.md](TOC.md)에서 확인합니다. `pages` 폴더에는 부모 장과 자식 절이 각각 독립된 Markdown 문서로 저장되어 있습니다. 목차의 들여쓰기 두 칸은 자식 문서, 네 칸은 손자 문서를 뜻합니다.
-
-각 문서는 다음 수업 요소를 포함합니다.
-
-- 학습 목표
-- 쉬운 개념 설명
-- 실제 성공 코드
-- 코드 한 줄씩 읽기
-- 실습 확인 지점
-- 자주 발생하는 오류
-- 생각해 볼 문제와 수행 과제
-
-## 분량 안내
-
-이 원고는 코드, 표, 실습 활동지, 확인문제와 화면 캡처 삽입 공간을 포함하여 A4 약 100쪽으로 편집하도록 설계되었습니다. 글꼴 11pt, 줄간격 160%, 코드 9pt를 권장합니다. Markdown 렌더러와 편집 설정에 따라 실제 쪽수는 달라질 수 있습니다.
-
-### A4 100쪽 편집 배정표
-
-| 구분 | 권장 쪽수 | 주요 편집 요소 |
-|---|---:|---|
-| 표지·책 소개·목차 | 6 | 표지 1, 안내 2, 목차 3 |
-| 01. 프로젝트 시작 | 6 | 전체 흐름도와 준비물 화면 |
-| 02. CNN 기초 | 9 | 픽셀·필터·풀링 삽화와 종이 활동 |
-| 03. 데이터 준비 | 11 | 폴더 구조, 표본 사진, 데이터 카드 |
-| 04. 이미지 전처리 | 11 | 리사이즈 비교, 분할표, 증강 결과 |
-| 05. CNN 모델 | 10 | 모델 구조도, summary, 학습 곡선 |
-| 06. 평가·일반화 | 11 | 혼동행렬, 휴대폰 사례, 개선 기록지 |
-| 07. TensorFlow.js 변환 | 10 | 환경 구성, 파일 구조, 검증 출력 |
-| 08. React·Vite 웹앱 | 11 | UI 화면, 코드 해설, 휴대폰 실습 |
-| 09. 오류 해결 | 5 | 오류 메시지 전후 비교 |
-| 10. Git·Pages 배포 | 5 | Git 흐름과 Actions 화면 |
-| 11. 수업 프로젝트 | 3 | 차시표와 평가표 |
-| 12. 부록 | 2 | 용어·체크리스트·답안 |
-| **합계** | **100** | 코드와 화면 캡처 포함 |
-
-각 본문의 `학습 목표`, 코드 블록, 확인문제 사이에 학생 기록 공간을 두고, 실제 실습 화면 캡처는 개인 정보가 보이지 않도록 잘라 넣습니다. 인쇄본을 만들 때는 부모 문서를 새 장에서 시작하고 자식 문서는 같은 장의 절로 이어 배치합니다.
-
-## 중요한 전처리 약속
-
-웹용 모델 내부에는 `Rescaling(1/255)`가 들어 있습니다. 따라서 React에서 입력 텐서를 다시 `255`로 나누면 안 됩니다. 휴대폰 사진은 중앙을 정사각형으로 자르고 `180×180` RGB 텐서로 바꾼 뒤, 픽셀값 `0~255` 상태로 모델에 전달합니다.
-
-## 학습 윤리와 안전
-
-사진에 얼굴, 이름표, 위치 정보 등 개인정보가 포함되지 않게 합니다. AI 예측은 확률적 판단이며 재활용 정책의 공식 판정이 아닙니다. 낮은 신뢰도는 억지로 정답으로 바꾸지 않고 ‘판단 보류’로 표시합니다.
