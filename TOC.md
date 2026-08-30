@@ -54,4 +54,12 @@
   - [12-1. 전체 클래스와 코드 용어](pages/12-1-glossary.md)
   - [12-2. 성공 체크리스트](pages/12-2-checklist.md)
   - [12-3. 확인문제와 예시 답안](pages/12-3-questions.md)
-
+  - [12-4. 핵심 용어 설명 모음](pages/12-4-D-core-concepts.md)
+    - [전처리 핵심 용어](pages/D-core-concepts.md#1-전처리-핵심-용어)
+    - [4단계 CNN 핵심 용어](pages/D-core-concepts.md#2-4단계-cnn-핵심-용어)
+    - [학습 핵심 용어](pages/D-core-concepts.md#3-학습-핵심-용어)
+    - [혼동행렬 평가 핵심 용어](pages/D-core-concepts.md#4-혼동행렬-평가-핵심-용어)
+    - [일반화 핵심 용어](pages/D-core-concepts.md#5-일반화-핵심-용어)
+    - [부록 A. 전체 Colab 코드](pages/A-full-colab.md)
+    - [부록 B. 용어 사전](pages/B-glossary.md)
+    - [부록 C. 평가 루브릭과 정답 길잡이](pages/C-rubric.md)
