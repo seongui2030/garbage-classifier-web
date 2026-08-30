@@ -11,4 +11,3 @@
 웹 경로: import.meta.env.BASE_URL
 배포: main Push → GitHub Actions → dist → Pages
 ```
-

@@ -86,3 +86,12 @@ Kaggle 데이터 확인 → 두 데이터셋 결합 → 10개 폴더 정리 → 
 ## 학습 윤리와 안전
 
 사진에 얼굴, 이름표, 위치 정보 등 개인정보가 포함되지 않게 합니다. AI 예측은 확률적 판단이며 재활용 정책의 공식 판정이 아닙니다. 낮은 신뢰도는 억지로 정답으로 바꾸지 않고 ‘판단 보류’로 표시합니다.
+
+## 소스코드 git 저장소
+[AI 이미지 분류 비서](https://github.com/seongui2030/garbage-classifier-web-student.git)
+
+## 참고 자료
+- [Kaggle API KEY 생성](https://www.kaggle.com/settings/api)
+- [Kaggle data#1]()
+- [Kaggle data#2](https://www.kaggle.com/code/killa92/f1-0-96-garbage-classification-project)
+
