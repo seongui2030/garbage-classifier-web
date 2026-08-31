@@ -97,3 +97,5 @@ Kaggle 데이터 확인 → 두 데이터셋 결합 → 10개 폴더 정리 → 
 
 ## 휴대폰으로 이미지 분류 홈페이지 주소
 - [AI 쓰레기 분류 ](https://seongui2030.github.io/garbage-classifier-web-student/)
+
+## 경상북도 성의고등학교 정보•컴퓨터 교사 이정원 올림 ##
